@@ -20,10 +20,14 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 		self.pickerView.dataSource = self
 
 		self.pickerView.font = UIFont(name: "HelveticaNeue-Light", size: 20)!
-		self.pickerView.highlightedFont = UIFont(name: "HelveticaNeue", size: 20)!
+		self.pickerView.highlightedFont = UIFont.boldSystemFont(ofSize: 20)//UIFont(name: "HelveticaNeue-Bold", size: 25)!
+        self.pickerView.highlightedTextColor = UIColor.red
 		self.pickerView.pickerViewStyle = .flat
 		self.pickerView.maskDisabled = false
 		self.pickerView.reloadData()
+        self.pickerView.circleSelectedItem = true
+        self.pickerView.circleSelectedItemDiameter = 45.0
+        self.pickerView.circleSelectedItemWidth = 2.0
 	}
 
 	// MARK: - AKPickerViewDataSource

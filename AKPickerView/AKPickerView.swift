@@ -134,7 +134,7 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
 		let visibleRect = CGRect(origin: self.collectionView!.contentOffset, size: self.collectionView!.bounds.size)
 		self.midX = visibleRect.midX;
 		self.width = visibleRect.width / 2;
-		self.maxAngle = CGFloat(M_PI_2);
+		self.maxAngle = CGFloat(Double.pi/2);
 	}
 
 	fileprivate override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -148,7 +148,7 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
 				return attributes
 			case .wheel:
 				let distance = attributes.frame.midX - self.midX;
-				let currentAngle = self.maxAngle * distance / self.width / CGFloat(M_PI_2);
+				let currentAngle = self.maxAngle * distance / self.width / CGFloat(Double.pi/2);
 				var transform = CATransform3DIdentity;
 				transform = CATransform3DTranslate(transform, -distance, 0, -self.width);
 				transform = CATransform3DRotate(transform, currentAngle, 0, 1, 0);
@@ -238,7 +238,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	public lazy var font = UIFont.systemFont(ofSize: 20)
 
 	/// Readwrite. A font which used in selected cells.
-	public lazy var highlightedFont = UIFont.boldSystemFont(ofSize: 25)
+	public lazy var highlightedFont = UIFont.boldSystemFont(ofSize: 20)
 
 	/// Readwrite. A color of the text on NOT selected cells.
 	@IBInspectable public lazy var textColor: UIColor = UIColor.darkGray
@@ -251,6 +251,15 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 
 	/// Readwrite. The style of the picker view. See AKPickerViewStyle.
 	public var pickerViewStyle = AKPickerViewStyle.wheel
+    
+    // Readwrite. A boolean describing whether you would like circles around the selected item. It True, must set next two fields.
+    public var circleSelectedItem: Bool = false
+    
+    //Readwrite. A CGFloat value describing the diameter of the circle around the selected item.
+    public var circleSelectedItemDiameter: CGFloat = 0.0
+    
+    //Readwrite. A CGFloat value describing the width of the circle around the selected item.
+    public var circleSelectedItemWidth: CGFloat = 0.0
 
 	/// Readwrite. A float value which determines the perspective representation which used when using AKPickerViewStyle.Wheel style.
 	@IBInspectable public var viewDepth: CGFloat = 1000.0 {
@@ -280,11 +289,38 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 				}()
 		}
 	}
-    
+
 	// MARK: Readonly Properties
 	/// Readonly. Index of currently selected item.
-    public private(set) var selectedItem: Int = 0
-    
+    public private(set) var selectedItem: Int = 0 {
+        didSet {
+            if oldValue != selectedItem {
+                let oldSelectedIndexPath = IndexPath(item: oldValue, section: 0)
+                if let oldSelectedCell = self.collectionView.cellForItem(at: oldSelectedIndexPath) as? AKCollectionViewCell {
+                    oldSelectedCell._selected = false
+                    if self.circleSelectedItem {
+                        uncircleItem(cell: oldSelectedCell)
+                    }
+                }
+                else {
+                    self.collectionView.reloadItems(at: [oldSelectedIndexPath])
+                }
+                let newSelectedIndexPath = IndexPath(item: selectedItem, section: 0)
+                if let newSelectedCell = self.collectionView.cellForItem(at: newSelectedIndexPath) as? AKCollectionViewCell {
+                    newSelectedCell._selected = true
+                    if self.circleSelectedItem {
+                        circleItem(cell: newSelectedCell)
+                    }
+                }
+                else {
+                    self.collectionView.reloadItems(at: [newSelectedIndexPath])
+                }
+            }
+            //change label.font of new/old index path to highlighted/not highlighted font unless they are of the same value
+            //consider edge cases
+            //think of of this is better place to do all circle calls
+        }
+    }
 	/// Readonly. The point at which the origin of the content view is offset from the origin of the picker view.
 	public var contentOffset: CGPoint {
 		get {
@@ -470,10 +506,10 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	:param: notifySelection True if the delegate method should be called, false if not.
 	*/
 	fileprivate func selectItem(_ item: Int, animated: Bool, notifySelection: Bool) {
-        
         if selectedItem != item {
-            removeCircleFromAroundItem(item: item)
+            
         }
+        
         
         self.collectionView.selectItem(
             at: IndexPath(item: item, section: 0),
@@ -484,33 +520,45 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         if notifySelection {
             self.delegate?.pickerView?(self, didSelectItem: item)
         }
-        
-        let indexPath = IndexPath(item: selectedItem, section: 0)
-        if let cell = self.collectionView.cellForItem(at: indexPath) as? AKCollectionViewCell {
-            drawCircleAroundItem(cell: cell)
-        }
+//        
+//        if self.circleSelectedItem {
+//            let indexPath = IndexPath(item: selectedItem, section: 0)
+//            if let cell = self.collectionView.cellForItem(at: indexPath) as? AKCollectionViewCell {
+//                circleItem(cell: cell)
+//            }
+//        }
     }
-
     
-    public func removeCircleFromAroundItem(item: Int) {
-        let previousIndexPath: IndexPath = IndexPath(item: selectedItem, section: 0)
+    private func uncircleItem(cell: AKCollectionViewCell) {
+        cell.label.layer.borderWidth = 0.0
+        cell.label.layer.borderColor = UIColor.white.cgColor
+        cell.label.layer.borderColor = UIColor.white.cgColor
+    }
+    
+    private func uncircleItem(item: Int) {
+        let previousIndexPath: IndexPath = IndexPath(item: item, section: 0)
         if let cell = self.collectionView.cellForItem(at: previousIndexPath) as? AKCollectionViewCell {
-            cell.label.layer.borderWidth = 0.0
-            cell.label.layer.borderColor = UIColor.white.cgColor
+            if self.circleSelectedItem {
+                cell.label.layer.borderWidth = 0.0
+                cell.label.layer.cornerRadius = 0.0
+                cell.label.layer.borderColor = UIColor.white.cgColor
+            }
         }
-        else {
+        else if self.circleSelectedItem{
             self.collectionView.reloadItems(at: [previousIndexPath])
         }
     }
     
-    private func drawCircleAroundItem(cell: AKCollectionViewCell) {
-        let size: CGSize = CGSize(width: 45.0, height: 45.0)
-        let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
-        let rect: CGRect = CGRect(origin: origin, size: size)
-        cell.label.bounds = rect
-        cell.label.layer.cornerRadius = 45.0 / 2
-        cell.label.layer.borderWidth = 2.0
-        cell.label.layer.borderColor = cell.label.highlightedTextColor?.cgColor
+    private func circleItem(cell: AKCollectionViewCell) {
+        if self.circleSelectedItem {
+            let size: CGSize = CGSize(width: self.circleSelectedItemDiameter, height: self.circleSelectedItemDiameter)
+            let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
+            let rect: CGRect = CGRect(origin: origin, size: size)
+            cell.label.bounds = rect
+            cell.label.layer.cornerRadius = self.circleSelectedItemDiameter / 2
+            cell.label.layer.borderWidth = self.circleSelectedItemWidth
+            cell.label.layer.borderColor = cell.label.highlightedTextColor?.cgColor
+        }
     }
     
     // MARK: Delegate Handling
@@ -551,23 +599,16 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	}
 
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        print(indexPath)
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(AKCollectionViewCell.self), for: indexPath) as! AKCollectionViewCell
+        cell._selected = (indexPath.item == self.selectedItem)
 		if let title = self.dataSource?.pickerView?(self, titleForItem: indexPath.item) {
             cell.label.text = title
-            
 			cell.label.textColor = self.textColor
 			cell.label.highlightedTextColor = self.highlightedTextColor
-			cell.label.font = self.font
 			cell.font = self.font
 			cell.highlightedFont = self.highlightedFont
-            
-            let size: CGSize = CGSize(width: 45.0, height: 45.0)
-            let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
-            
-            
-            cell.label.bounds = indexPath.item != selectedItem ? CGRect(origin: origin, size:size) : CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
-            
+            cell.label.font = cell._selected ? cell.highlightedFont : cell.font
+            cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
             if let delegate = self.delegate {
                 delegate.pickerView?(self, configureLabel: cell.label, forItem: indexPath.item)
                 if let margin = delegate.pickerView?(self, marginForItem: indexPath.item) {
@@ -577,13 +618,9 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		} else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
 			cell.imageView.image = image
 		}
-		cell._selected = (indexPath.item == self.selectedItem)
-        if indexPath.item != selectedItem {
-            cell.label.layer.borderWidth = 0.0
-            cell.label.layer.borderColor = UIColor.white.cgColor
-        }
-        else {
-            drawCircleAroundItem(cell: cell)
+        if self.circleSelectedItem {
+            if cell._selected { circleItem(cell: cell) }
+            else { uncircleItem(cell: cell) }
         }
 		return cell
 	}
@@ -652,12 +689,5 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	fileprivate func pickerViewStyleForCollectionViewLayout(_ layout: AKCollectionViewLayout) -> AKPickerViewStyle {
 		return self.pickerViewStyle
 	}
-
-    public func itemLabel (item: Int) -> UILabel? {
-        let indexPath = IndexPath(item: item, section: 0)
-        let cell = collectionView.cellForItem(at: indexPath) as? AKCollectionViewCell
-        return cell?.label
-    }
-    
 }
 
