@@ -316,9 +316,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
                     self.collectionView.reloadItems(at: [newSelectedIndexPath])
                 }
             }
-            //change label.font of new/old index path to highlighted/not highlighted font unless they are of the same value
-            //consider edge cases
-            //think of of this is better place to do all circle calls
         }
     }
 	/// Readonly. The point at which the origin of the content view is offset from the origin of the picker view.
@@ -490,12 +487,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	:param: animated True if the scrolling should be animated, false if it should be immediate.
 	*/
 	public func selectItem(_ item: Int, animated: Bool = false) {
-        
-        
-        
 		self.selectItem(item, animated: animated, notifySelection: true)
-        
-        
 	}
 
 	/**
@@ -506,11 +498,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	:param: notifySelection True if the delegate method should be called, false if not.
 	*/
 	fileprivate func selectItem(_ item: Int, animated: Bool, notifySelection: Bool) {
-        if selectedItem != item {
-            
-        }
-        
-        
         self.collectionView.selectItem(
             at: IndexPath(item: item, section: 0),
 			animated: animated,
@@ -520,13 +507,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         if notifySelection {
             self.delegate?.pickerView?(self, didSelectItem: item)
         }
-//        
-//        if self.circleSelectedItem {
-//            let indexPath = IndexPath(item: selectedItem, section: 0)
-//            if let cell = self.collectionView.cellForItem(at: indexPath) as? AKCollectionViewCell {
-//                circleItem(cell: cell)
-//            }
-//        }
     }
     
     private func uncircleItem(cell: AKCollectionViewCell) {
@@ -581,7 +561,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 						layout: self.collectionView.collectionViewLayout,
 						sizeForItemAt: indexPath)
 					if self.offsetForItem(i) + cellSize.width / 2 > self.collectionView.contentOffset.x {
-						//self.selectItem(i, animated: true, notifySelection: true)
+						self.selectItem(i, animated: true, notifySelection: true)
 						break
 					}
 				}
