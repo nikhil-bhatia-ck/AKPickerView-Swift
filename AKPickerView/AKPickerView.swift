@@ -515,30 +515,14 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
         cell.label.layer.borderColor = UIColor.white.cgColor
     }
     
-    private func uncircleItem(item: Int) {
-        let previousIndexPath: IndexPath = IndexPath(item: item, section: 0)
-        if let cell = self.collectionView.cellForItem(at: previousIndexPath) as? AKCollectionViewCell {
-            if self.circleSelectedItem {
-                cell.label.layer.borderWidth = 0.0
-                cell.label.layer.cornerRadius = 0.0
-                cell.label.layer.borderColor = UIColor.white.cgColor
-            }
-        }
-        else if self.circleSelectedItem{
-            self.collectionView.reloadItems(at: [previousIndexPath])
-        }
-    }
-    
     private func circleItem(cell: AKCollectionViewCell) {
-        if self.circleSelectedItem {
-            let size: CGSize = CGSize(width: self.circleSelectedItemDiameter, height: self.circleSelectedItemDiameter)
-            let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
-            let rect: CGRect = CGRect(origin: origin, size: size)
-            cell.label.bounds = rect
-            cell.label.layer.cornerRadius = self.circleSelectedItemDiameter / 2
-            cell.label.layer.borderWidth = self.circleSelectedItemWidth
-            cell.label.layer.borderColor = cell.label.highlightedTextColor?.cgColor
-        }
+        let size: CGSize = CGSize(width: self.circleSelectedItemDiameter, height: self.circleSelectedItemDiameter)
+        let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
+        let rect: CGRect = CGRect(origin: origin, size: size)
+        cell.label.bounds = rect
+        cell.label.layer.cornerRadius = self.circleSelectedItemDiameter / 2
+        cell.label.layer.borderWidth = self.circleSelectedItemWidth
+        cell.label.layer.borderColor = cell.label.highlightedTextColor?.cgColor
     }
     
     // MARK: Delegate Handling
