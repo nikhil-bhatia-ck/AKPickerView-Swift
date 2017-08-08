@@ -72,6 +72,9 @@ Usage
   var interitemSpacing: CGFloat
   var viewDepth: CGFloat
   var pickerViewStyle: AKPickerViewStyle
+  var circleSelectedItem: Bool //Draws a circle around the selected item. If True, next two properties required.
+  var circleSelectedItemDiameter: CGFloat //Diameter of circle
+  var circleSelectedItemWidth: CGFloat //Width of circle line
   ```
   
     - All cells are laid out depending on the largest font, so large differnce between the sizes of *font* and *highlightedFont* is NOT recommended.  
