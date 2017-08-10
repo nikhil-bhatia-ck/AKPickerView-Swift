@@ -68,7 +68,7 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 	*/
 
 	
-    func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int) {
+//    func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int) {
 //        if let label = pickerView.itemLabel(item: item) {
 //            if pickerView.selectedItem != item {
 //                label.layer.borderWidth = 0.0
@@ -76,12 +76,12 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 //                label.layer.borderColor = UIColor.white.cgColor
 //            }
 //        }
-    }
-    
-	func pickerView(_ pickerView: AKPickerView, marginForItem item: Int) -> CGSize {
-        return CGSize(width: 40,height: 20)
+//    }
+    /*
+	func pickerView(pickerView: AKPickerView, marginForItem item: Int) -> CGSize {
+	return CGSizeMake(40, 20)
 	}
-	
+	*/
 
 	/*
 
