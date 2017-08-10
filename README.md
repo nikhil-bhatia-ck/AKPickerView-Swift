@@ -72,6 +72,7 @@ Usage
   var interitemSpacing: CGFloat
   var viewDepth: CGFloat
   var pickerViewStyle: AKPickerViewStyle
+  /*Following three properties are only on credit_karma branch*/
   var circleSelectedItem: Bool //Draws a circle around the selected item. If True, next two properties required.
   var circleSelectedItemDiameter: CGFloat //Diameter of circle
   var circleSelectedItemWidth: CGFloat //Width of circle line
