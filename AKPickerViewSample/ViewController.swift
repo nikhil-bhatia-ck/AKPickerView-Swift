@@ -12,7 +12,7 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 
 	@IBOutlet var pickerView: AKPickerView!
 
-	let titles = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+	let titles = ["Tokyo", "Kanagawa", "Osaka", "Aichi", "Saitama", "Chiba", "Hyogo", "Hokkaido", "Fukuoka", "Shizuoka"]
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -20,14 +20,10 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 		self.pickerView.dataSource = self
 
 		self.pickerView.font = UIFont(name: "HelveticaNeue-Light", size: 20)!
-		self.pickerView.highlightedFont = UIFont.boldSystemFont(ofSize: 20)//UIFont(name: "HelveticaNeue-Bold", size: 25)!
-        self.pickerView.highlightedTextColor = UIColor.red
-		self.pickerView.pickerViewStyle = .flat
+		self.pickerView.highlightedFont = UIFont(name: "HelveticaNeue", size: 20)!
+		self.pickerView.pickerViewStyle = .wheel
 		self.pickerView.maskDisabled = false
 		self.pickerView.reloadData()
-        self.pickerView.circleSelectedItem = true
-        self.pickerView.circleSelectedItemDiameter = 45.0
-        self.pickerView.circleSelectedItemWidth = 2.0
 	}
 
 	// MARK: - AKPickerViewDataSource
@@ -48,11 +44,12 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 		return self.titles[item]
 	}
 
-//	func pickerView(_ pickerView: AKPickerView, imageForItem item: Int) -> UIImage {
-//		return UIImage(named: self.titles[item])!
-//	}
+	func pickerView(_ pickerView: AKPickerView, imageForItem item: Int) -> UIImage {
+		return UIImage(named: self.titles[item])!
+	}
 
 	// MARK: - AKPickerViewDelegate
+
 	func pickerView(_ pickerView: AKPickerView, didSelectItem item: Int) {
 		print("Your favorite city is \(self.titles[item])")
 	}
@@ -67,17 +64,17 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 
 	*/
 
-	
-//    func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int) {
-//        if let label = pickerView.itemLabel(item: item) {
-//            if pickerView.selectedItem != item {
-//                label.layer.borderWidth = 0.0
-//                label.layer.cornerRadius = 0.0
-//                label.layer.borderColor = UIColor.white.cgColor
-//            }
-//        }
-//    }
-    /*
+	/*
+	func pickerView(pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int) {
+	label.textColor = UIColor.lightGrayColor()
+	label.highlightedTextColor = UIColor.whiteColor()
+	label.backgroundColor = UIColor(
+	hue: CGFloat(item) / CGFloat(self.titles.count),
+	saturation: 1.0,
+	brightness: 0.5,
+	alpha: 1.0)
+	}
+
 	func pickerView(pickerView: AKPickerView, marginForItem item: Int) -> CGSize {
 	return CGSizeMake(40, 20)
 	}

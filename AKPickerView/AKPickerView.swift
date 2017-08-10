@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Foundation
 
 /**
 Styles of AKPickerView.
@@ -62,7 +61,11 @@ private class AKCollectionViewCell: UICollectionViewCell {
 	var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	var _selected: Bool = false {
 		didSet(selected) {
-            self.label.font = self.isSelected ? self.highlightedFont : self.font
+			let animation = CATransition()
+			animation.type = kCATransitionFade
+			animation.duration = 0.15
+			self.label.layer.add(animation, forKey: "")
+			self.label.font = self.isSelected ? self.highlightedFont : self.font
 		}
 	}
 
@@ -70,6 +73,7 @@ private class AKCollectionViewCell: UICollectionViewCell {
 		self.layer.isDoubleSided = false
 		self.layer.shouldRasterize = true
 		self.layer.rasterizationScale = UIScreen.main.scale
+
 		self.label = UILabel(frame: self.contentView.bounds)
 		self.label.backgroundColor = UIColor.clear
 		self.label.textAlignment = .center
@@ -96,9 +100,9 @@ private class AKCollectionViewCell: UICollectionViewCell {
 	override init(frame: CGRect) {
 		super.init(frame: frame)
 		self.initialize()
-    }
-    
-    required init!(coder aDecoder: NSCoder) {
+	}
+
+	required init!(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 		self.initialize()
 	}
@@ -134,7 +138,7 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
 		let visibleRect = CGRect(origin: self.collectionView!.contentOffset, size: self.collectionView!.bounds.size)
 		self.midX = visibleRect.midX;
 		self.width = visibleRect.width / 2;
-		self.maxAngle = CGFloat(Double.pi/2);
+		self.maxAngle = CGFloat(M_PI_2);
 	}
 
 	fileprivate override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
@@ -148,7 +152,7 @@ private class AKCollectionViewLayout: UICollectionViewFlowLayout {
 				return attributes
 			case .wheel:
 				let distance = attributes.frame.midX - self.midX;
-				let currentAngle = self.maxAngle * distance / self.width / CGFloat(Double.pi/2);
+				let currentAngle = self.maxAngle * distance / self.width / CGFloat(M_PI_2);
 				var transform = CATransform3DIdentity;
 				transform = CATransform3DTranslate(transform, -distance, 0, -self.width);
 				transform = CATransform3DRotate(transform, currentAngle, 0, 1, 0);
@@ -233,7 +237,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 			self.intercepter.delegate = delegate
 		}
 	}
-    
 	/// Readwrite. A font which used in NOT selected cells.
 	public lazy var font = UIFont.systemFont(ofSize: 20)
 
@@ -251,15 +254,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 
 	/// Readwrite. The style of the picker view. See AKPickerViewStyle.
 	public var pickerViewStyle = AKPickerViewStyle.wheel
-    
-    // Readwrite. A boolean describing whether you would like circles around the selected item. It True, must set next two fields.
-    public var circleSelectedItem: Bool = false
-    
-    //Readwrite. A CGFloat value describing the diameter of the circle around the selected item.
-    public var circleSelectedItemDiameter: CGFloat = 0.0
-    
-    //Readwrite. A CGFloat value describing the width of the circle around the selected item.
-    public var circleSelectedItemWidth: CGFloat = 0.0
 
 	/// Readwrite. A float value which determines the perspective representation which used when using AKPickerViewStyle.Wheel style.
 	@IBInspectable public var viewDepth: CGFloat = 1000.0 {
@@ -292,32 +286,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 
 	// MARK: Readonly Properties
 	/// Readonly. Index of currently selected item.
-    public private(set) var selectedItem: Int = 0 {
-        didSet {
-            if oldValue != selectedItem {
-                let oldSelectedIndexPath = IndexPath(item: oldValue, section: 0)
-                if let oldSelectedCell = self.collectionView.cellForItem(at: oldSelectedIndexPath) as? AKCollectionViewCell {
-                    oldSelectedCell._selected = false
-                    if self.circleSelectedItem {
-                        uncircleItem(cell: oldSelectedCell)
-                    }
-                }
-                else {
-                    self.collectionView.reloadItems(at: [oldSelectedIndexPath])
-                }
-                let newSelectedIndexPath = IndexPath(item: selectedItem, section: 0)
-                if let newSelectedCell = self.collectionView.cellForItem(at: newSelectedIndexPath) as? AKCollectionViewCell {
-                    newSelectedCell._selected = true
-                    if self.circleSelectedItem {
-                        circleItem(cell: newSelectedCell)
-                    }
-                }
-                else {
-                    self.collectionView.reloadItems(at: [newSelectedIndexPath])
-                }
-            }
-        }
-    }
+	public private(set) var selectedItem: Int = 0
 	/// Readonly. The point at which the origin of the content view is offset from the origin of the picker view.
 	public var contentOffset: CGPoint {
 		get {
@@ -498,36 +467,20 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	:param: notifySelection True if the delegate method should be called, false if not.
 	*/
 	fileprivate func selectItem(_ item: Int, animated: Bool, notifySelection: Bool) {
-        self.collectionView.selectItem(
-            at: IndexPath(item: item, section: 0),
+		self.collectionView.selectItem(
+			at: IndexPath(item: item, section: 0),
 			animated: animated,
 			scrollPosition: UICollectionViewScrollPosition())
 		self.scrollToItem(item, animated: animated)
 		self.selectedItem = item
-        if notifySelection {
-            self.delegate?.pickerView?(self, didSelectItem: item)
-        }
-    }
-    
-    private func uncircleItem(cell: AKCollectionViewCell) {
-        cell.label.layer.borderWidth = 0.0
-        cell.label.layer.borderColor = UIColor.white.cgColor
-        cell.label.layer.borderColor = UIColor.white.cgColor
-    }
-    
-    private func circleItem(cell: AKCollectionViewCell) {
-        let size: CGSize = CGSize(width: self.circleSelectedItemDiameter, height: self.circleSelectedItemDiameter)
-        let origin: CGPoint = CGPoint(x: 0.0, y: 0.0)
-        let rect: CGRect = CGRect(origin: origin, size: size)
-        cell.label.bounds = rect
-        cell.label.layer.cornerRadius = self.circleSelectedItemDiameter / 2
-        cell.label.layer.borderWidth = self.circleSelectedItemWidth
-        cell.label.layer.borderColor = cell.label.highlightedTextColor?.cgColor
-    }
-    
-    // MARK: Delegate Handling
-    /**
-     Private.
+		if notifySelection {
+			self.delegate?.pickerView?(self, didSelectItem: item)
+		}
+	}
+
+	// MARK: Delegate Handling
+	/**
+	Private.
 	*/
 	fileprivate func didEndScrolling() {
 		switch self.pickerViewStyle {
@@ -564,28 +517,24 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(AKCollectionViewCell.self), for: indexPath) as! AKCollectionViewCell
-        cell._selected = (indexPath.item == self.selectedItem)
 		if let title = self.dataSource?.pickerView?(self, titleForItem: indexPath.item) {
-            cell.label.text = title
+			cell.label.text = title
 			cell.label.textColor = self.textColor
 			cell.label.highlightedTextColor = self.highlightedTextColor
+			cell.label.font = self.font
 			cell.font = self.font
 			cell.highlightedFont = self.highlightedFont
-            cell.label.font = cell._selected ? cell.highlightedFont : cell.font
-            cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
-            if let delegate = self.delegate {
-                delegate.pickerView?(self, configureLabel: cell.label, forItem: indexPath.item)
-                if let margin = delegate.pickerView?(self, marginForItem: indexPath.item) {
-                    cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
-                }
-            }
+			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
+			if let delegate = self.delegate {
+				delegate.pickerView?(self, configureLabel: cell.label, forItem: indexPath.item)
+				if let margin = delegate.pickerView?(self, marginForItem: indexPath.item) {
+					cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
+				}
+			}
 		} else if let image = self.dataSource?.pickerView?(self, imageForItem: indexPath.item) {
 			cell.imageView.image = image
 		}
-        if self.circleSelectedItem {
-            if cell._selected { circleItem(cell: cell) }
-            else { uncircleItem(cell: cell) }
-        }
+		cell._selected = (indexPath.item == self.selectedItem)
 		return cell
 	}
 
@@ -626,19 +575,19 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	// MARK: UICollectionViewDelegate
 	public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
 		self.selectItem(indexPath.item, animated: true)
-    }
-    
-    // MARK: UIScrollViewDelegate
+	}
+
+	// MARK: UIScrollViewDelegate
 	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		self.delegate?.scrollViewDidEndDecelerating?(scrollView)
-		//self.didEndScrolling()
+		self.didEndScrolling()
 	}
 
 	public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 		self.delegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
-//		if !decelerate {
-//			self.didEndScrolling()
-//		}
+		if !decelerate {
+			self.didEndScrolling()
+		}
 	}
 
 	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -653,5 +602,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	fileprivate func pickerViewStyleForCollectionViewLayout(_ layout: AKCollectionViewLayout) -> AKPickerViewStyle {
 		return self.pickerViewStyle
 	}
+
 }
 
