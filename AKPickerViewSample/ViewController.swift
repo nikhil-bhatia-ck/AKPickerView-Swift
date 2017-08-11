@@ -79,7 +79,7 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
     }
     
 	func pickerView(_ pickerView: AKPickerView, marginForItem item: Int) -> CGSize {
-        return CGSize(width: 40,height: 20)
+        return CGSize(width: 0,height: 0)
 	}
 	
 
