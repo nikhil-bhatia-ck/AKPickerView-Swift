@@ -52,15 +52,12 @@ Usage
   func numberOfItemsInPickerView(pickerView: AKPickerView) -> Int {}
   ```
 	
-1. and contents to be shown. You can use either texts or images:
+1. and contents to be shown. You can use texts:
   ```swift
   func pickerView(pickerView: AKPickerView, titleForItem item: Int) -> NSString {}
-  // OR
-  func pickerView(pickerView: AKPickerView, imageForItem item: Int) -> UIImage {}
   ```
 	
-  - Using both texts and images are currently not supported. When you implement both, `titleForItem` will be called and the other won't. 
-  - You currently cannot specify image sizes; AKPickerView shows the original image in its original size. Resize your images in advance if you need.
+  - Using images has been removed from this branch.
 
 1. You can change its appearance with properties below:
 
@@ -72,12 +69,13 @@ Usage
   var interitemSpacing: CGFloat
   var viewDepth: CGFloat
   var pickerViewStyle: AKPickerViewStyle
-  var circleSelectedItem: Bool //Draws a circle around the selected item. If True, next two properties required.
-  var circleSelectedItemDiameter: CGFloat //Diameter of circle
-  var circleSelectedItemWidth: CGFloat //Width of circle line
+  /*Following three properties are only on credit_karma branch*/
+  var circleSelectedItem: Bool /*Draws a circle around the selected item. If True, next two properties required.*/
+  var circleSelectedItemDiameter: CGFloat /*Diameter of circle*/
+  var circleSelectedItemWidth: CGFloat /*Width of circle line*/
   ```
   
-    - All cells are laid out depending on the largest font, so large differnce between the sizes of *font* and *highlightedFont* is NOT recommended.  
+    - All cells are laid out depending on the largest font, so large difference between the sizes of *font* and *highlightedFont* is NOT recommended.  
     - viewDepth property affects the perspective distortion. A value near the screen's height or width is recommended.
 
 1. After all settings, **never forget to reload your picker**.
