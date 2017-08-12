@@ -68,7 +68,7 @@ class ViewController: UIViewController, AKPickerViewDataSource, AKPickerViewDele
 	*/
 
 	
-    func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int) {
+    func pickerView(_ pickerView: AKPickerView, configureCell cell: AKCollectionViewCell, forItem item: Int) {
 //        if let label = pickerView.itemLabel(item: item) {
 //            if pickerView.selectedItem != item {
 //                label.layer.borderWidth = 0.0

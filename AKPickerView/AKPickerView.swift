@@ -38,7 +38,7 @@ and customize the appearance of labels.
 public protocol AKPickerViewDelegate: UIScrollViewDelegate {
 	func pickerView(_ pickerView: AKPickerView, didSelectItem item: Int)
 	func pickerView(_ pickerView: AKPickerView, marginForItem item: Int) -> CGSize
-	func pickerView(_ pickerView: AKPickerView, configureLabel label: UILabel, forItem item: Int)
+	func pickerView(_ pickerView: AKPickerView, configureCell cell: AKCollectionViewCell, forItem item: Int)
 }
 
 // MARK: - Private Classes and Protocols
@@ -54,7 +54,7 @@ private protocol AKCollectionViewLayoutDelegate {
 /**
 Private. A subclass of UICollectionViewCell used in AKPickerView's collection view.
 */
-private class AKCollectionViewCell: UICollectionViewCell {
+public class AKCollectionViewCell: UICollectionViewCell {
 	var label: UILabel!
 	var imageView: UIImageView!
 	var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
@@ -103,7 +103,7 @@ private class AKCollectionViewCell: UICollectionViewCell {
 		self.initialize()
 	}
 	
-	required init!(coder aDecoder: NSCoder) {
+	required public init!(coder aDecoder: NSCoder) {
 		super.init(coder: aDecoder)
 		self.initialize()
 	}
@@ -585,7 +585,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 			cell.label.font = cell._selected ? cell.highlightedFont : cell.font
 			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
 			if let delegate = self.delegate {
-				delegate.pickerView(self, configureLabel: cell.label, forItem: indexPath.item)
+				delegate.pickerView(self, configureCell: cell, forItem: indexPath.item)
 				let margin = delegate.pickerView(self, marginForItem: indexPath.item)
 				cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
 			}
