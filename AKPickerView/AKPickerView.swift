@@ -575,7 +575,6 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(AKCollectionViewCell.self), for: indexPath) as! AKCollectionViewCell
-		cell._selected = (indexPath.item == self.selectedItem)
 		if let title = self.dataSource?.pickerView(self, titleForItem: indexPath.item) {
 			cell.label.text = title
 			cell.selectedColor = self.highlightedTextColor
@@ -590,6 +589,7 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 				cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
 			}
 		}
+		cell._selected = (indexPath.item == self.selectedItem)
 		if self.circleSelectedItem {
 			if cell._selected {
 				circleItem(cell: cell)
