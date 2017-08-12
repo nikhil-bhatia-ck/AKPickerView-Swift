@@ -57,10 +57,10 @@ Private. A subclass of UICollectionViewCell used in AKPickerView's collection vi
 public class AKCollectionViewCell: UICollectionViewCell {
 	var label: UILabel!
 	var imageView: UIImageView!
-	var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
-	var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
-	var selectedColor: UIColor = UIColor.red
-	var unselectedColor: UIColor = UIColor.black
+	public var font = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+	public var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
+	public var selectedColor: UIColor = UIColor.red
+	public var unselectedColor: UIColor = UIColor.black
 	var _selected: Bool = false {
 		didSet {
 			self.label.font = _selected ? self.highlightedFont : self.font
