@@ -61,13 +61,7 @@ public class AKCollectionViewCell: UICollectionViewCell {
 	public var highlightedFont = UIFont.systemFont(ofSize: UIFont.systemFontSize)
 	public var selectedColor: UIColor = UIColor.red
 	public var unselectedColor: UIColor = UIColor.black
-	var _selected: Bool = false {
-		didSet {
-			self.label.font = _selected ? self.highlightedFont : self.font
-			self.label.highlightedTextColor = _selected ? self.selectedColor : self.unselectedColor
-			self.label.textColor = _selected ? self.selectedColor : self.unselectedColor
-		}
-	}
+	var _selected: Bool = false
 	
 	func initialize() {
 		self.layer.isDoubleSided = false
@@ -299,39 +293,13 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	/// Readonly. Index of currently selected item.
 	public private(set) var selectedItem: Int = 0 {
 		didSet {
-			if oldValue != selectedItem {
-				unselectItem(item: oldValue)
-				selectItem(item: selectedItem)
-			}
-		}
-	}
-	
-	private func unselectItem(item: Int) {
-		let oldSelectedIndexPath = IndexPath(item: item, section: 0)
-		if let oldSelectedCell = self.collectionView.cellForItem(at: oldSelectedIndexPath) as? AKCollectionViewCell {
-			oldSelectedCell._selected = false
-			if self.circleSelectedItem {
-				uncircleItem(cell: oldSelectedCell)
-			}
-		}
-		else {
-			self.collectionView.reloadItems(at: [oldSelectedIndexPath])
-		}
-	}
-	
-	private func selectItem(item: Int) {
-		let newSelectedIndexPath = IndexPath(item: item, section: 0)
-		if let newSelectedCell = self.collectionView.cellForItem(at: newSelectedIndexPath) as? AKCollectionViewCell {
-			newSelectedCell._selected = true
-			if self.circleSelectedItem {
-				circleItem(cell: newSelectedCell)
-			}
+			self.collectionView.reloadData()
 		}
 	}
 	
 	private func uncircleItem(cell: AKCollectionViewCell) {
+		cell.label.layer.cornerRadius = 0.0
 		cell.label.layer.borderWidth = 0.0
-		cell.label.layer.borderColor = UIColor.white.cgColor
 		cell.label.layer.borderColor = UIColor.white.cgColor
 	}
 	
@@ -342,9 +310,9 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 		cell.label.bounds = rect
 		cell.label.layer.cornerRadius = self.circleSelectedItemDiameter / 2
 		cell.label.layer.borderWidth = self.circleSelectedItemWidth
-		cell.label.layer.borderColor = cell.selectedColor.cgColor  //highlightedTextColor?.cgColor
+		cell.label.layer.borderColor = cell.selectedColor.cgColor
 	}
-	
+
 	/// Readonly. The point at which the origin of the content view is offset from the origin of the picker view.
 	public var contentOffset: CGPoint {
 		get {
@@ -576,20 +544,22 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(AKCollectionViewCell.self), for: indexPath) as! AKCollectionViewCell
 		if let title = self.dataSource?.pickerView(self, titleForItem: indexPath.item) {
-			cell.label.text = title
-			cell.selectedColor = self.highlightedTextColor
-			cell.unselectedColor = self.textColor
-			cell.font = self.font
-			cell.highlightedFont = self.highlightedFont
-			cell.label.font = cell._selected ? cell.highlightedFont : cell.font
-			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
+			cell._selected = (indexPath.item == self.selectedItem)
 			if let delegate = self.delegate {
 				delegate.pickerView(self, configureCell: cell, forItem: indexPath.item)
 				let margin = delegate.pickerView(self, marginForItem: indexPath.item)
 				cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
 			}
+			cell.selectedColor = self.highlightedTextColor
+			cell.unselectedColor = self.textColor
+			cell.font = self.font
+			cell.highlightedFont = self.highlightedFont
+			cell.label.text = title
+			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
+			cell.label.font = cell._selected ? cell.highlightedFont : cell.font
+			cell.label.highlightedTextColor = cell._selected ? cell.selectedColor : cell.unselectedColor
+			cell.label.textColor = cell._selected ? cell.selectedColor : cell.unselectedColor
 		}
-		cell._selected = (indexPath.item == self.selectedItem)
 		if self.circleSelectedItem {
 			if cell._selected {
 				circleItem(cell: cell)
