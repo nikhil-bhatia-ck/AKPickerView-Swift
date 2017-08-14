@@ -544,16 +544,19 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NSStringFromClass(AKCollectionViewCell.self), for: indexPath) as! AKCollectionViewCell
 		if let title = self.dataSource?.pickerView(self, titleForItem: indexPath.item) {
+			/*Setup cell defaults*/
 			cell._selected = (indexPath.item == self.selectedItem)
+			cell.selectedColor = self.highlightedTextColor
+			cell.unselectedColor = self.textColor
+			cell.font = self.font
+			cell.highlightedFont = self.highlightedFont
+			/*Add cell configurations from delegate*/
 			if let delegate = self.delegate {
 				delegate.pickerView(self, configureCell: cell, forItem: indexPath.item)
 				let margin = delegate.pickerView(self, marginForItem: indexPath.item)
 				cell.label.frame = cell.label.frame.insetBy(dx: -margin.width, dy: -margin.height)
 			}
-			cell.selectedColor = self.highlightedTextColor
-			cell.unselectedColor = self.textColor
-			cell.font = self.font
-			cell.highlightedFont = self.highlightedFont
+			/*Configure label based on cell settings*/
 			cell.label.text = title
 			cell.label.bounds = CGRect(origin: CGPoint.zero, size: self.sizeForString(title as NSString))
 			cell.label.font = cell._selected ? cell.highlightedFont : cell.font
