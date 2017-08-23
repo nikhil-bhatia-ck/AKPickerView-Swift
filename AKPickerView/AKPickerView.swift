@@ -614,14 +614,14 @@ public class AKPickerView: UIView, UICollectionViewDataSource, UICollectionViewD
 	// MARK: UIScrollViewDelegate
 	public func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
 		self.delegate?.scrollViewDidEndDecelerating?(scrollView)
-		self.didEndScrolling()
+		//self.didEndScrolling()
 	}
 	
 	public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
 		self.delegate?.scrollViewDidEndDragging?(scrollView, willDecelerate: decelerate)
-         	if !decelerate {
-			self.didEndScrolling()
-		}
+		//		if !decelerate {
+		//			self.didEndScrolling()
+		//		}
 	}
 	
 	public func scrollViewDidScroll(_ scrollView: UIScrollView) {
